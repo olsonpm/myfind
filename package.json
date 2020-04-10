@@ -1,0 +1,29 @@
+{
+  "name": "myfind",
+  "version": "0.1.0",
+  "description": "An alternative to 'find' catered to my taste",
+  "main": "lib/index.js",
+  "bin": "./bin.js",
+  "scripts": {},
+  "keywords": [],
+  "author": "Phil Olson",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "eslint-config-personal": "github:olsonpm/eslint-config-personal",
+    "prettier": "^2.0.4"
+  },
+  "eslintConfig": {
+    "extends": "personal"
+  },
+  "prettier": {
+    "arrowParens": "avoid",
+    "semi": false,
+    "singleQuote": true,
+    "trailingComma": "es5"
+  },
+  "dependencies": {
+    "parse-args": "github:olsonpm/parse-args#607054651a486d64ddd27ed98a029309487bee17",
+    "tedent": "github:olsonpm/tedent"
+  }
+}
