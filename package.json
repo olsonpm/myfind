@@ -23,7 +23,8 @@
     "trailingComma": "es5"
   },
   "dependencies": {
-    "parse-args": "github:olsonpm/parse-args#607054651a486d64ddd27ed98a029309487bee17",
-    "tedent": "github:olsonpm/tedent"
+    "parse-args": "github:olsonpm/parse-args#3ec32aa6b4acefb35646695ca0e2ff80989da8b4",
+    "tedent": "github:olsonpm/tedent",
+    "type-detect": "^4.0.8"
   }
 }

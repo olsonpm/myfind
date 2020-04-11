@@ -7,9 +7,9 @@
 
 const parseArgs = require('parse-args'),
   tedent = require('tedent'),
-  myfind = require('./lib/sync'),
-  { version } = require('./package.json'),
-  { log } = require('./lib/utils')
+  myfind = require('./lib'),
+  pjson = require('./package.json'),
+  { log, logErr } = require('./lib/utils')
 
 //
 //------//
@@ -26,19 +26,40 @@ const rawArgs = process.argv.slice(2)
 run()
 
 function run() {
-  if (handleHelpAndVersion()) return
+  let args
 
-  const { pathExcludes, pathIncludes, type } = parseArgs.namedSimple({
-    allArgs: rawArgs,
-    allowMultiple: ['--path-excludes', '--path-includes'],
-  })
+  try {
+    args = parseArgs.namedSimple({
+      allArgs: rawArgs,
+      allowMultiple: ['--path-excludes', '--path-includes'],
+    })
+  } catch (err) {
+    if (err.group === 'cannot parse') {
+      logErr(err.message)
+      process.exitCode = 1
+      return
+    } else throw err
+  }
 
-  myfind({
-    absoluteStartDir: process.cwd(),
-    pathExcludes,
-    pathIncludes,
-    type,
-  })
+  if (args.help) {
+    printHelp()
+    return
+  } else if (args.version) {
+    log('version: ' + pjson.version)
+    return
+  }
+
+  try {
+    myfind.sync(Object.assign({ absoluteStartDir: process.cwd() }, args))
+  } catch (err) {
+    if (err.id === 'invalid-args') {
+      logErr(err.message)
+      process.exitCode = 1
+      return
+    } else {
+      throw err
+    }
+  }
 }
 
 //
@@ -46,31 +67,23 @@ function run() {
 // Helper Functions //
 //------------------//
 
-function handleHelpAndVersion() {
-  if (rawArgs.includes('--help')) {
-    printHelp()
-    return true
-  } else if (rawArgs.includes('--version')) {
-    log('version: ' + version)
-    return true
-  }
-}
-
 function printHelp() {
-  log(
-    tedent(`
-    Description: another alternative to 'find'
+  const help = tedent(`
+    My personal alternative to 'find'
 
     Usage: myfind [--help|--version|named args]
 
-    Example: myfind --path-excludes node_modules --path-excludes .git --type f --path-includes .test.js
+    Example: myfind --path-excludes node_modules \\
+      --path-excludes .git \\
+      --type file \\
+      --path-includes .test.js
 
     * Below the term 'file' includes 'directory' unless otherwise stated
 
-    This utility recursively traverses all files from the current working
-    directory and prints relative file paths which match the filters passed in.
-    With no filters, this utility will print every file.  Symbolic links are not
-    traversed, nor are directories whose paths end up excluded.
+    Description: This utility recursively traverses all files from the current working
+      directory and prints relative file paths which match the filters passed in.
+      With no filters, this utility will print every file.  Symbolic links are not
+      traversed, nor are directories whose paths end up excluded.
 
     Named args
       --path-excludes   exclude files where the relative path contains this string.
@@ -84,5 +97,6 @@ function printHelp() {
                         exposes files of various types that myfind doesn't provide
                         filters for.
   `)
-  )
+
+  log(help)
 }
